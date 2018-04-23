@@ -1,0 +1,5 @@
+=> EXPLAIN SELECT * FROM foo WHERE LOWER(name) = 'abc';
+                                  QUERY PLAN                                  
+------------------------------------------------------------------------------
+ Index Scan using foo_ix_lower_name on foo  (cost=0.43..8.45 rows=1 width=18)
+   Index Cond: (lower(name) = 'abc'::text)

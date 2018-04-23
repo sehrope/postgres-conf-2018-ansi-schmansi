@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PostgresConf US 2018 - ANSI, Schmansi!</title>
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/blood.css">
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <style>
+      .container {
+        display: flex;
+      }
+      .col {
+        flex: 1;
+      }
+      
+      .unstyled {
+        list-style: none;
+      }
+      
+      i.success-check:after {
+        content: '✔ ';
+        color: green;
+      }
+      
+      i.failure-x:after {
+        content: '✘ ';
+        color: red;
+      }
+      
+      .small {
+        font-size: 70% !important;
+        font-weight: normal !important;
+      }
+      
+      .bold {
+        font-weight: bold !important;
+      }
+    </style>
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h3>ANSI, Schmansi!</h3>
+          <p>How I learned to stop worrying <br>and love Postgres-isms</p><br>
+          <p>PostgresConf US 2018</p>
+          <p class="small">April 19, 2018<br>Jersey City, NJ</p>
+        </section>
+        <section>
+          <h3>About Me</h3>
+          <ul class="unstyled">
+            <li>Sehrope Sarkuni</li>
+            <li>Founder of JackDB, Inc. <code>(jackdb.com)</code></li>
+            <li>Contributor to <code>pgjdbc</code> (Java driver)</li>
+            <li>Contributor to <code>node-postgres</code> (Node.js driver)</li>
+            <li>Occasionally gives great advice on #postgresql</li>
+          </ul>
+        </section>
+        <section>
+          <h3>The SQL Standard</h3>
+          <ul>
+            <li>SQL became an ANSI standard in 1986.</li>
+            <li>SQL:2011 and SQL:2016 are the two most recent revisions to the standard.</li>
+            <li>PostgreSQL supports most of SQL:2011 standard.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>The SQL Standard</h3>
+          <h4>Revisions</h4>
+          <ul>
+            <li>SQL:2003 (4th revision) - XML (Native XML type)</li>
+            <li>SQL:2006 (5th revision) - XML (SQL/XML)</li>
+            <li>SQL:2007 (6th revision) - MERGE / TRUNCATE</li>
+            <li>SQL:2011 (7th revision) - Temporal databases</li>
+            <li>SQL:2016 (8th revision) - JSON, Row pattern recognition</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Database Agnostic</h3>
+          <h4>Historical Reasons</h4>
+          <ul>
+            <li>Licensing costs of target platform</li>
+            <li>Avoiding perceived or actual lock in</li>
+            <li>Deployment uncertainty</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Database Agnostic</h3>
+          <h4>Limitations &amp; Issues</h4>
+          <ul>
+            <li>Weak typing &mdash; "stringly" typed UUIDs</li>
+            <li>Weak constraints &mdash; CHECK and UNIQUE KEY</li>
+            <li>Basic SQL &mdash; SELECT, UPDATE, DELETE by id</li>
+            <li>Basic operators &mdash; =, &lt;, &gt;, and LIKE</li>
+            <li>"But my ORM solves this!" &mdash; Not really...</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Database Specific</h3>
+          <h4>Why?</h4>
+          <ul>
+            <li>Use newer features today</li>
+            <li>Leverage full power of your database</li>
+            <li>Dev &lt;&gt; Prod parity</li>
+          </ul>
+        </section>
+        <section>
+          <h3>PostgreSQL is...</h3>
+          <ul>
+            <li>The <strong>most advanced</strong> open source database</li>
+            <li>An <strong>object relational</strong> database system</li>
+            <li><strong>Featureful</strong> and <strong>standards compliant</strong></li>
+          </ul>
+        </section>
+        <section>
+          <h3>PostgreSQL and the SQL Standard</h3>
+          <blockquote>
+            "PostgreSQL development <strong>aims for conformance</strong> with the latest official version
+            of the standard where such conformance <strong>does not contradict traditional features
+            or common sense</strong>".  
+          </blockquote>
+                  <p class="small"><a href="https://www.postgresql.org/docs/current/static/features.html">https://www.postgresql.org/docs/current/static/features.html</a></p>
+        </section>
+        <section>
+          <h3>Beyond ANSI SQL</h3>
+          <ul>
+            <li>Many <strong>useful extensions</strong></li>
+            <li>Many <strong>non-standard features</strong></li>
+            <li>Some are simply a <strong>different syntax</strong></li>
+            <li>Some make <strong>hard things easy</strong></li>
+            <li>Some make <strong>impossible things possible</strong></li>
+          </ul>
+        </section>
+        <section>
+          <h3>Everyday SQL</h3>
+          <ul>
+            <li>SELECT ... <s>FROM</s></li>
+            <li>Casting via ::</li>
+            <li>Pattern Matching</li>
+            <li>Dollar Quoting</li>
+            <li>MVCC / Transaction Isolation</li>
+          </ul>
+        </section>
+        <section>
+          <h3>SELECT ... <s>FROM</s></h3>
+          <p>No need to specify a relation for SELECT queries</p>
+          <pre><code class="sql">-- Look ma, no FROM!
+SELECT 'test' AS x;</code><code class="plaintext">  x   
+------
+test
+(1 row)
+</code></pre>
+        </section>
+        <section>
+          <h3>Casting via ::</h3>
+          <p>Less typing and easy on the eyes</p>
+          <pre><code class="sql">-- Using CAST(...) syntax:
+SELECT CAST('2018-04-19' AS date)
+
+-- Using :: syntax
+SELECT '2018-04-19'::date
+</code></pre>
+                  <p class="small"><a href="https://www.postgresql.org/docs/current/static/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS">https://www.postgresql.org/docs/current/static/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS</a></p>
+        </section>
+        <section>
+          <h3>Regular Expressions</h3>
+          <ul>
+            <li>More powerful than <strong>LIKE</strong></li>
+            <li>Great for <strong>CHECK</strong> constraints</li>
+            <li>Indexable via <strong>pg_trgm</strong> contrib extension</li>
+            <li>Lots of related regexp_ functions</li>
+          </ul>
+          <pre><code class="sql">SELECT *
+FROM conference c
+WHERE c.year = 2018
+  AND c.name ~* '(postgresql)|(pgsql)'
+</code></pre>
+                  <p class="small"><a href="https://www.postgresql.org/docs/current/static/pgtrgm.html">https://www.postgresql.org/docs/current/static/pgtrgm.html</a></p>
+        </section>
+        <section>
+          <h3>Dollar Quoting</h3>
+          <p>Simplifies quoting literals that include quotes</p>
+          <pre><code>-- Regular single quotes:
+SELECT 'This is a literal with a '' single quote';
+
+-- Dollar quotes:
+SELECT $$This is a literal with a ' single quote$$;
+
+-- Tagged dollar quotes:
+SELECT $tag$I can even include $$ in $$ quotes$tag$;
+</code></pre>
+        </section>
+        <section>
+          <h3>Dollar Quoting</h3>
+          <p>Great hack for importing a block of text as data<small>[1]</small></p>
+          <pre><code>SELECT
+  t.fields[1] AS title,
+  t.fields[2]::date AS start_date,
+  t.fields[3]::date AS end_date,
+  t.fields[4] AS city
+FROM (
+  SELECT regexp_split_to_array(line, ',') AS fields
+  FROM regexp_split_to_table(
+$$PGConf US,2016-04-18,2016-04-20,New York City
+PostgresConf US 2017,2017-03-28,2017-03-31,Jersey City
+PostgresConf US 2018,2018-04-16,2018-04-20,Jersey City$$
+       , '\n') AS line) t
+</code></pre>
+          <p class="small">[1]: For a one-off data munge... Don't do this in an actual app.</p>
+        </section>
+        <section>
+          <h3>MVCC / Transaction Isolation</h3>
+          <h4>Read Committed &mdash; A Sane Default</h4>
+          <ul>
+            <li>Readers don't block writers</li>
+            <li>Writers don't block readers</li>
+            <li>Usually what you want</li>
+          </ul>
+                  <p class="small"><a href="https://www.postgresql.org/docs/current/static/transaction-iso.html">https://www.postgresql.org/docs/current/static/transaction-iso.html</a></p>
+        </section>
+        <section>
+          <h3>Smarter SQL</h3>
+          <ul>
+            <li><code>generate_series(...)</code></li>
+            <li>LATERAL</li>
+            <li>Filtered Aggregates</li>
+          </ul>
+        </section>
+        <section>
+          <h3>generate_series(...)</h3>
+          <p>The best way to bootstrap sample data</p>
+          <pre><code class="sql">-- Without a built-in generator:
+SELECT x
+FROM (SELECT ROWNUM AS x
+      FROM some_big_table_i_hope_is_big_enough) t;
+WHERE x < 1000;
+
+-- With built-in generate_series(...)
+SELECT x
+FROM generate_series(1, 100) x;
+</code></pre>
+          <pre><code class="nohighlight"> x  
+-----
+   1
+   2
+   3
+  ...
+(100 rows)
+</code></pre>
+        </section>
+        <section>
+          <h3>generate_series(...)</h3>
+          <p>Combine with built-in operators for other types</p>
+          <pre><code class="sql">SELECT now()::date - x AS some_date
+FROM generate_series(1, 100) x;
+</code></pre>
+          <pre><code class="nohighlight">some_date  
+------------
+ 2018-04-18
+ 2018-04-17
+ 2018-04-15
+ 2018-04-16
+ ...
+(100 rows)
+</code></pre>
+        </section>
+        <section>
+          <h3>LATERAL</h3>
+          <p>Like scalar subqueries but with more than one column</p>
+          <pre><code class="sql">-- Most recent purchase per customer
+SELECT
+  c.id,
+  c.email,
+  p.transaction_date,
+  p.total_price
+FROM customer c
+  LEFT JOIN LATERAL (
+    SELECT
+    FROM purchase p
+    -- Filter on this specific customer's purchases:
+    WHERE p.customer_id = c.id
+    -- Get only the most recent transaction
+    ORDER BY p.transaction_date DESC
+    LIMIT 1) p ON true
+</code></pre>
+        </section>
+        <section>
+          <h3>Filtered Aggregates</h3>
+          <pre><code class="sql">-- Workaround with CASE ... WHEN ... END
+SELECT
+  SUM(CASE
+        WHEN c.type = 'postgres' THEN 1 ELSE 0
+      END) AS num_postgres,
+  SUM(CASE
+        WHEN c.type != 'postgres' THEN 1 ELSE 0
+      END) AS num_non_postgres
+FROM conference c
+
+-- With filtered aggregates
+SELECT
+  COUNT(*) FILTER (WHERE c.type = 'postgres')
+    AS num_postgres,
+  COUNT(*) FILTER (WHERE c.type != 'postgres')
+    AS num_non_postgres
+FROM conference c
+</code></pre><small><em>Part of SQL:2003 standard yet only supported by PostgreSQL</em></small>
+        </section>
+        <section>
+          <h3>Data Modeling</h3>
+          <ul>
+            <li>Core Data Types</li>
+            <li>Domains &amp; Custom Types</li>
+            <li>Partial Indexes</li>
+            <li>Expression Indexes</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Core Data Types</h3>
+          <p>PostgreSQL includes many data types</p>
+          <ul>
+            <li><code>boolean</code></li>
+            <li><code>text</code></li>
+            <li><code>uuid</code></li>
+            <li><code>date</code></li>
+            <li><code><s>timestamp</s> / timestamptz</code></li>
+            <li><code>json / jsonb</code></li>
+            <li><code>inet / cidr</code></li>
+            <li><em>many many more...</em></li>
+          </ul>
+                  <p class="small"><a href="https://www.postgresql.org/docs/current/static/datatype.html">https://www.postgresql.org/docs/current/static/datatype.html</a></p>
+        </section>
+        <section>
+          <h3>Data Types &mdash; Boolean</h3>
+          <p>Simplify filtering in WHERE clauses</p>
+          <pre><code class="sql">-- Using ints 1/0 for true/false
+SELECT *
+FROM foo f
+WHERE f.is_active = 1</code></pre>
+          <p>vs.</p>
+          <pre><code class="sql">-- Using an actual boolean type
+SELECT *
+FROM foo f
+WHERE f.is_active
+</code></pre>
+        </section>
+        <section>
+          <h3>Data Types &mdash; Boolean</h3>
+          <p>Better signal-to-noise ratio for UPDATEs</p>
+          <pre><code class="sql">-- Using ints 1/0 for true/false
+UPDATE foo
+SET
+  is_active =
+    CASE WHEN bar = 'xyz'
+      THEN 1
+      ELSE 0
+    END</code></pre>
+          <p>vs.</p>
+          <pre><code class="sql">-- Using an actual boolean type
+UPDATE foo
+SET is_active = (bar = 'xyz')
+</code></pre>
+        </section>
+        <section>
+          <h3>Data Types &mdash; text</h3>
+          <ul>
+            <li>Empty string (i.e. '') are not NULL
+              <pre><code class="sql">=> SELECT '' IS NULL;
+?column? 
+----------
+f</code></pre>
+            </li>
+            <li>No size limits in practice <small>[1]</small></li>
+            <li>Many character sets / server encodings / client encodings <small>[2]</small></li>
+          </ul>
+                  <p class="small">[1]:
+                     Limited to 1 GB. If you get close to that size you've got other problems...
+                  </p>
+                  <p class="small">[2]:
+                     Though you probably should just use UTF-8
+                  </p>
+        </section>
+        <section>
+          <h3>Data Types &mdash; uuid</h3>
+          <ul>
+            <li>Added in version 8.3 (released <strong>2008!</strong>)</li>
+            <li>Stored as <strong>16-bytes</strong> (not as a string<small>[1]</small>)</li>
+            <li>Generate within app or in-database</li>
+          </ul>
+          <pre><code class="sql">=> SELECT pgcrypto.gen_random_uuid();
+          gen_random_uuid            
+--------------------------------------
+380a168a-7309-4f43-a3de-d89a86fd2284</code></pre>
+                  <p class="small">[1]:
+                     That's a >50% storage savings which translates to more data fitting in the cache.
+                  </p>
+        </section>
+        <section>
+          <h3>Data Types &mdash; json / jsonb</h3>
+          <ul>
+            <li>NoSQL on ACID</li>
+            <li>json added in 9.2 (released 2012)</li>
+            <li>json becomes useful in 9.3 (released 2013)</li>
+            <li>jsonb added in 9.4 (released 2014)</li>
+          </ul>
+          <pre><code class="sql">=> SELECT t.data->>'foo'
+    FROM (SELECT '{"foo": 123}'::json AS data) t;
+?column? 
+----------
+123
+(1 row)
+</code></pre>
+        </section>
+        <section>
+          <h3>Data Types &mdash; json / jsonb</h3>
+          <p><code>row_to_json(...)</code> and <code>json_agg(...)</code></p>
+          <pre><code class="sql">SELECT
+  p.id,
+  p.name,
+  p.type,
+  (SELECT
+      -- Convert NULL to empty list:
+      COALESCE(json_agg(t.*), '[]'::json)
+    FROM (
+      -- Sub-SELECT to get subset of keys we want:
+      SELECT 
+        c.id,
+        c.name
+      FROM child c
+      WHERE c.parent_id = p.id) t) AS children
+FROM parent p
+</code></pre>
+        </section>
+        <section>
+          <h3>Data Types &mdash; json / jsonb</h3>
+          <p><code>row_to_json(...)</code> and <code>json_agg(...)</code></p>
+          <pre><code class="no-highlight"> id | name |  type  |        children        
+----+------+--------+------------------------
+  1 | foo  | wizzle | [{"id":1,"name":"a"}, +
+    |      |        |  {"id":2,"name":"b"}, +
+    |      |        |  {"id":3,"name":"c"}]
+  2 | bar  | wizzle | [{"id":4,"name":"d"}]
+  3 | baz  | wozzle | []
+(3 rows)
+</code></pre>
+          <p class="small">Only <strong>one round-trip</strong> from app to database.</p>
+        </section>
+        <section>
+          <h3>Data Types &mdash; Domains</h3>
+          <ul>
+            <li>Subset of an existing type</li>
+            <li>Adds <strong>CHECK</strong> constraints and defaults</li>
+          </ul>
+          <pre><code class="sql">-- Account ids start with an "A" followed by 8 digits
+CREATE DOMAIN account_id_type AS text
+  CONSTRAINT account_id_type_ck_format
+    CHECK (VALUE ~ '^A[0-9]{8}$');
+
+-- Usernames must start with a letter and be alphanumeric
+CREATE DOMAIN app_username AS text
+  CONSTRAINT app_username_ck_valid
+    CHECK (VALUE ~ '^[a-z][a-z0-9]{2,254}$');
+
+-- Person ids start with an "P" followed by 15 digits
+CREATE DOMAIN person_id_type AS text
+  CONSTRAINT person_id_type_ck_format
+    CHECK (VALUE ~ '^P[0-9]{15}$');
+</code></pre>
+        </section>
+        <section>
+          <h3>Data Types &mdash; Domains</h3>
+          <p>Define once then reuse in multiple places</p>
+          <pre><code class="sql">CREATE TABLE person (
+  id            person_id_type PRIMARY KEY,
+  username      app_username,
+  name          text NOT NULL
+);
+
+CREATE TABLE account (
+    id          account_id_type PRIMARY KEY,
+    owner_id    person_id_type NOT NULL REFERENCES person (id),
+    balance     numeric NOT NULL
+);
+</code></pre>
+        </section>
+        <section>
+          <h3>Partial Indexes</h3>
+          <p>Index and constrain only a subset of a table</p>
+          <pre><code class="sql">CREATE TABLE menu_item (
+  id                        uuid PRIMARY KEY,
+  menu_date                 date NOT NULL,
+  name                      text NOT NULL,
+  price                     numeric NOT NULL,
+  is_daily_special          boolean NOT NULL DEFAULT false
+);
+
+CREATE INDEX menu_item_ix_menu_date_name
+  ON menu_item (menu_date, name);
+
+-- Only allow one item to be the daily special per day
+CREATE UNIQUE INDEX menu_item_uk_menu_date_is_daily_special
+  ON menu_item (menu_date)
+  WHERE is_daily_special;
+</code></pre>
+        </section>
+        <section>
+          <h3>Functional Indexes</h3>
+          <p>Allows for indexing an expression</p>
+          <pre><code class="sql">CREATE UNIQUE INDEX foo_ix_lower_name
+  ON foo (LOWER(name));</code></pre>
+          <pre class="code nohighlight">=> EXPLAIN SELECT * FROM foo WHERE LOWER(name) = 'abc';
+                                  QUERY PLAN           
+-------------------------------------------------------
+Index Scan using foo_ix_lower_name on foo
+  (cost=0.43..8.45 rows=1 width=18)
+  Index Cond: (lower(name) = 'abc'::text)
+</pre>
+        </section>
+        <section>
+          <h3>Schema and Data migrations</h3>
+          <ul>
+            <li>Transactional DDL</li>
+            <li>COPY</li>
+            <li>Template databases</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Transactional DDL</h3>
+          <ul>
+            <li>All or nothing schema migrations<small>[1]</small></li>
+            <li>Simultaneous DDL and data migrations</li>
+            <li>Re-test in dev via ROLLBACK</li>
+          </ul>
+          <pre><code class="sql">BEGIN;
+CREATE TABLE foo (/* ... */);
+CREATE INDEX foo_ix_id ON foo (/* ... */);
+INSERT INTO foo (/* ... */);
+CREATE TABLE bar (/* ... */);
+CREATE INDEX bar_ix_id ON bar (/* ... */);
+CREATE INDEX bar_ix_foo_id ON bar (/* ... */);
+INSERT INTO bar (/* ... */);
+COMMIT; -- Or ROLLBACK!
+</code></pre>
+                  <p class="small">[1]:
+                     Some limitations such as altering enums but most DDL is transactional.
+                  </p>
+        </section>
+        <section>
+          <h3>COPY</h3>
+          <p>The fastest way to export data</p>
+          <pre><code class="sql">COPY (
+  SELECT s.*
+  FROM some_huge_table s
+  WHERE s.foo = 'bar'
+    AND s.baz = 123
+) TO STDOUT
+WITH (FORMAT CSV)
+</code></pre>
+        </section>
+        <section>
+          <h3>Template Databases</h3>
+          <ul>
+            <li>All databases are copies from a template</li>
+            <li>Default template is <code>"template1"</code></li>
+            <li>Great for testing destructive changes</li>
+          </ul>
+          <p>First create a backup:</p>
+          <pre><code class="sql">CREATE DATABASE app_backup
+  TEMPLATE app
+  OWNER app_owner;
+</code></pre>
+        </section>
+        <section>
+          <h3>Template Databases</h3>
+          <ul>
+            <li>Run some schema migrations</li>
+            <li>Run your app</li>
+            <li>
+              <s>Realize that you broke everything</s>
+            </li>
+            <li>Restore from the template backup</li>
+            <li>Repeat!</li>
+          </ul>
+          <pre><code class="sql">-- Drop the current app database:
+DROP DATABASE app;
+-- Create it again from our backup:
+CREATE DATABASE app
+  TEMPLATE app_backup
+  OWNER app_owner;
+</code></pre>
+        </section>
+        <section>
+          <h3>Making Hard Things (REALLY) Easy</h3>
+        </section>
+        <section>
+          <h3>Hotel Bookings</h3>
+          <p>How do we prevent two customers from booking the same room?</p>
+        </section>
+        <section>
+          <h3>Hotel Bookings</h3>
+          <h4>Using vanilla SQL</h4>
+          <ul>
+            <li>Use two date columns: start and end</li>
+            <li>Add <code>CHECK: (start < end)</code></li>
+            <li>Add <code>UNIQUE: (room_id, start)</code></li>
+            <li>???</li>
+            <li>
+              Serialize via
+              &nbsp;<code class="sql">SELECT FOR UPDATE</code>
+            </li>
+            <li>Check for overlaps in app code</li>
+            <li>Hope that nothing else modifies the data</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Hotel Bookings</h3>
+          <h4>Using Range Types / Exclusion</h4>
+          <pre><code class="sql">CREATE TABLE reservation (
+    id              bigserial PRIMARY KEY,
+    room_id         bigint NOT NULL REFERENCES room (id),
+    booking_dates   daterange NOT NULL,
+    -- Prohibit overlapping bookings for the same room:
+    CONSTRAINT reservation_uk_room_id_booking_dates
+      EXCLUDE USING gist
+        (room_id WITH =, booking_dates WITH &&),
+    -- Ensure that the daterange are half open
+    CONSTRAINT reservation_ck_booking_dates_valid
+      CHECK (        lower_inc(booking_dates)
+             AND NOT upper_inc(booking_dates))
+);
+</code></pre>
+          <p>Available since v9.2 (released in <strong>2012!</strong>)</p>
+        </section>
+        <section>
+          <h3>Range Types / Exclusion</h3>
+          <pre><code class="sql">-- [123456789 123456789 123456789 ]
+-- [*********-                    ]
+-- [         ********-            ]
+-- [    **********-               ]
+INSERT INTO reservation (room_id, booking_dates)
+  VALUES (1, '[2018-01-01,2018-01-10)');
+INSERT INTO reservation (room_id, booking_dates)
+  VALUES (1, '[2018-01-10,2018-01-18)');
+INSERT INTO reservation (room_id, booking_dates)
+  VALUES (1, '[2018-01-05,2018-01-15)');
+</code></pre>
+          <pre><code>ERROR:  23P01: conflicting key value violates exclusion
+  constraint "reservation_uk_room_id_booking_dates"
+DETAIL:  Key (room_id, booking_dates)=
+  (1, [2018-01-05,2018-01-15)) conflicts with existing
+  key (room_id, booking_dates)=(1, [2018-01-01,2018-01-10)).
+SCHEMA NAME:  public
+TABLE NAME:  reservation
+CONSTRAINT NAME:  reservation_uk_room_id_booking_dates
+LOCATION:  check_exclusion_or_unique_constraint, execIndexing.c:836
+</code></pre>
+        </section>
+        <section>
+          <h3>Making The Impossible Possible</h3>
+        </section>
+        <section>
+          <h3>Combining Datasets</h3>
+          <h4>Say we have:</h4>
+          <ul>
+            <li>Primary DB for core data</li>
+            <li>Billing history in a separate DB</li>
+            <li>Website analytics in a third DB</li>
+            <li>User sessions (Redis)</li>
+          </ul>
+          <p>How to get a live view of all of this together?</p>
+        </section>
+        <section>
+          <h3>Foreign Data Wrappers</h3>
+          <ul>
+            <li>Query remote tables as if they're local</li>
+            <li>Turns your database into a data hub</li>
+            <li>Support for RDBMS and non-RDBMS</li>
+            <li>Extensions exist for pure APIs too</li>
+          </ul>
+        </section>
+        <section>
+          <h3>postgres_fdw</h3>
+          <pre><code class="sql">CREATE EXTENSION postgres_fdw;
+CREATE SERVER billing_db
+   FOREIGN DATA WRAPPER postgres_fdw
+   OPTIONS ( /* Server info for billing database */ );
+CREATE USER MAPPING FOR public
+  SERVER billing_db
+  OPTIONS ( /* Credentails for billing database */ );
+CREATE FOREIGN TABLE billing_transaction (
+    id                  uuid NOT NULL,
+    customer_id         uuid NOT NULL,
+    created_at          timestamptz NOT NULL,
+    amount              numeric NOT NULL
+  ) SERVER billing_db;
+</code></pre>
+        </section>
+        <section>
+          <h3>redis_fdw</h3>
+          <pre><code class="sql">CREATE EXTENSION redis_fdw;
+CREATE SERVER redis_server
+  FOREIGN DATA WRAPPER redis_fdw
+  OPTIONS ( /* Server details for Redis */ );
+CREATE USER MAPPING FOR PUBLIC
+  SERVER redis_server
+  OPTIONS ( /* Credentials for Redis */ );
+CREATE FOREIGN TABLE redis_session (
+    key text,
+    value text)
+  SERVER redis_server;
+</code></pre>
+        </section>
+        <section>
+          <h3>Join Them All!</h3>
+          <pre><code class="sql">SELECT
+  /* ... Customer details ... */
+  bt.total_amount,
+  (s.detail->>'created_at')::timestamptz AS session_created_at,
+  (s.detail->>'page_views')::int AS page_views
+FROM (SELECT
+        bt.customer_id,
+        SUM(amount) AS total_amount
+      FROM billing_transaction bt
+      WHERE br.created_at > (now() - '30 days'::interval) bt
+  JOIN customer c ON c.id = bt.customer_id,
+  LATERAL (SELECT ((s.value)::json) AS detail
+           FROM redis_session s
+           WHERE s.key = ('customer:' || c.id)) s
+WHERE (s.detail->>'page_views')::int > 10
+</code></pre>
+        </section>
+        <section>
+          <h3>Summary</h3><img src="img/postgresql-logo-540x557.png" width="270" height="278">
+          <p>Don't crawl on N databases...</p>
+          <p>when you can run on one!</p>
+        </section>
+        <section>
+          <h3>Q&amp;A</h3>
+          <p>Sehrope Sarkuni</p>
+          <p>sehrope@jackdb.com</p>
+        </section>
+        <section>
+          <h3>Thank You!</h3>
+        </section>
+      </div>
+    </div>
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        history: true,
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+        ]
+      });
+    </script>
+  </body>
+</html>

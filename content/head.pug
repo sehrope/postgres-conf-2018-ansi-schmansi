@@ -1,0 +1,44 @@
+head
+  meta(charset='utf-8')
+  meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
+  title
+    | PostgresConf US 2018 - ANSI, Schmansi!
+  link(rel='stylesheet' href='css/reveal.css')
+  link(rel='stylesheet' href='css/theme/blood.css')
+  link(rel='stylesheet', href='lib/css/zenburn.css')
+  style.
+    .container {
+      display: flex;
+    }
+    .col {
+      flex: 1;
+    }
+
+    .unstyled {
+      list-style: none;
+    }
+
+    i.success-check:after {
+      content: '✔ ';
+      color: green;
+    }
+
+    i.failure-x:after {
+      content: '✘ ';
+      color: red;
+    }
+
+    .small {
+      font-size: 70% !important;
+      font-weight: normal !important;
+    }
+
+    .bold {
+      font-weight: bold !important;
+    }
+  script.
+    var link = document.createElement( 'link' );
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+    document.getElementsByTagName( 'head' )[0].appendChild( link );

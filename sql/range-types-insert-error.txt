@@ -1,0 +1,9 @@
+ERROR:  23P01: conflicting key value violates exclusion
+  constraint "reservation_uk_room_id_booking_dates"
+DETAIL:  Key (room_id, booking_dates)=
+  (1, [2018-01-05,2018-01-15)) conflicts with existing
+  key (room_id, booking_dates)=(1, [2018-01-01,2018-01-10)).
+SCHEMA NAME:  public
+TABLE NAME:  reservation
+CONSTRAINT NAME:  reservation_uk_room_id_booking_dates
+LOCATION:  check_exclusion_or_unique_constraint, execIndexing.c:836

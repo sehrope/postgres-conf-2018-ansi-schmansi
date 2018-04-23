@@ -1,0 +1,471 @@
+mixin pg-docs-url(url)
+  p.small
+    a(href=url)= url
+
+mixin foot-note(number)
+  p.small
+    | [#{number}]:
+    | 
+    block
+
+section
+  h3 ANSI, Schmansi!
+  p How I learned to stop worrying <br>and love Postgres-isms
+  br
+  p PostgresConf US 2018
+  p.small April 19, 2018<br>Jersey City, NJ
+
+section
+  h3 About Me
+  ul.unstyled
+    li Sehrope Sarkuni
+    li Founder of JackDB, Inc. <code>(jackdb.com)</code>
+    li Contributor to <code>pgjdbc</code> (Java driver)
+    li Contributor to <code>node-postgres</code> (Node.js driver)
+    li Occasionally gives great advice on #postgresql
+
+section
+  h3 The SQL Standard
+  ul
+    li SQL became an ANSI standard in 1986.
+    li SQL:2011 and SQL:2016 are the two most recent revisions to the standard.
+    li PostgreSQL supports most of SQL:2011 standard.
+
+section
+  h3 The SQL Standard
+  h4 Revisions
+  ul
+    li SQL:2003 (4th revision) - XML (Native XML type)
+    li SQL:2006 (5th revision) - XML (SQL/XML)
+    li SQL:2007 (6th revision) - MERGE / TRUNCATE
+    li SQL:2011 (7th revision) - Temporal databases
+    li SQL:2016 (8th revision) - JSON, Row pattern recognition
+
+section
+  h3 Database Agnostic
+  h4 Historical Reasons
+  ul
+    li Licensing costs of target platform
+    li Avoiding perceived or actual lock in
+    li Deployment uncertainty
+
+section
+  h3 Database Agnostic
+  h4 Limitations &amp; Issues
+  ul
+    li Weak typing &mdash; "stringly" typed UUIDs
+    li Weak constraints &mdash; CHECK and UNIQUE KEY
+    li Basic SQL &mdash; SELECT, UPDATE, DELETE by id
+    li Basic operators &mdash; =, &lt;, &gt;, and LIKE
+    li "But my ORM solves this!" &mdash; Not really...
+
+section
+  h3 Database Specific
+  h4 Why?
+  ul
+    li Use newer features today
+    li Leverage full power of your database
+    li Dev &lt;&gt; Prod parity
+
+section
+  h3 PostgreSQL is...
+  ul
+    li The <strong>most advanced</strong> open source database
+    li An <strong>object relational</strong> database system
+    li <strong>Featureful</strong> and <strong>standards compliant</strong>
+
+section
+  h3 PostgreSQL and the SQL Standard
+  blockquote
+    | "PostgreSQL development <strong>aims for conformance</strong> with the latest official version
+    | of the standard where such conformance <strong>does not contradict traditional features
+    | or common sense</strong>".  
+  +pg-docs-url('https://www.postgresql.org/docs/current/static/features.html')
+
+section
+  h3 Beyond ANSI SQL
+  ul
+    li Many <strong>useful extensions</strong>
+    li Many <strong>non-standard features</strong>
+    li Some are simply a <strong>different syntax</strong>
+    li Some make <strong>hard things easy</strong>
+    li Some make <strong>impossible things possible</strong>
+
+section
+  h3 Everyday SQL
+  ul
+    li SELECT ... <s>FROM</s>
+    li Casting via ::
+    li Pattern Matching
+    li Dollar Quoting
+    li MVCC / Transaction Isolation
+
+section
+  h3 SELECT ... <s>FROM</s>
+  p No need to specify a relation for SELECT queries
+  pre
+    code.sql.
+      -- Look ma, no FROM!
+      SELECT 'test' AS x;
+    code.plaintext.
+        x   
+      ------
+      test
+      (1 row)
+
+section
+  h3 Casting via ::
+  p Less typing and easy on the eyes
+  pre
+    code.sql
+      include ../sql/cast-vs-colon-colon.sql
+  +pg-docs-url('https://www.postgresql.org/docs/current/static/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS')
+
+section
+  h3 Regular Expressions
+  ul
+    li More powerful than <strong>LIKE</strong>
+    li Great for <strong>CHECK</strong> constraints
+    li Indexable via <strong>pg_trgm</strong> contrib extension
+    li Lots of related regexp_ functions
+  pre: code.sql
+    include ../sql/regex-example.sql
+  +pg-docs-url('https://www.postgresql.org/docs/current/static/pgtrgm.html')
+
+section
+  h3 Dollar Quoting
+  p Simplifies quoting literals that include quotes
+  pre
+    code
+      include ../sql/quoting-examples.sql
+
+section
+  h3 Dollar Quoting
+  p Great hack for importing a block of text as data<small>[1]</small>
+  pre
+    code
+      include ../sql/dollar-quote-csv-import.sql
+  p.small [1]: For a one-off data munge... Don't do this in an actual app.
+
+section
+  h3 MVCC / Transaction Isolation
+  h4 Read Committed &mdash; A Sane Default
+  ul
+    li Readers don't block writers
+    li Writers don't block readers
+    li Usually what you want
+  +pg-docs-url('https://www.postgresql.org/docs/current/static/transaction-iso.html')
+
+section
+  h3 Smarter SQL
+  ul
+    li <code>generate_series(...)</code>
+    li LATERAL
+    li Filtered Aggregates
+
+section
+  h3 generate_series(...)
+  p The best way to bootstrap sample data
+  pre: code.sql
+    include ../sql/generate-series.sql
+  pre: code.nohighlight
+    include ../sql/generate-series-output.txt
+
+section
+  h3 generate_series(...)
+  p Combine with built-in operators for other types
+  pre: code.sql
+    include ../sql/generate-series-dates.sql
+  pre: code.nohighlight
+    include ../sql/generate-series-dates-output.txt
+
+section
+  h3 LATERAL
+  p Like scalar subqueries but with more than one column
+  pre: code.sql
+    include ../sql/lateral.sql
+
+section
+  h3 Filtered Aggregates
+  pre: code.sql
+    include ../sql/filtered-aggregates.sql
+  small: em Part of SQL:2003 standard yet only supported by PostgreSQL
+
+section
+  h3 Data Modeling
+  ul
+    li Core Data Types
+    li Domains &amp; Custom Types
+    li Partial Indexes
+    li Expression Indexes
+
+section
+  h3 Core Data Types
+  p PostgreSQL includes many data types
+  ul
+    li: code boolean
+    li: code text
+    li: code uuid
+    li: code date
+    li: code <s>timestamp</s> / timestamptz
+    li: code json / jsonb
+    li: code inet / cidr
+    li: em many many more...
+  +pg-docs-url('https://www.postgresql.org/docs/current/static/datatype.html')
+
+section
+  h3 Data Types &mdash; Boolean
+  p Simplify filtering in WHERE clauses
+  pre: code.sql.
+    -- Using ints 1/0 for true/false
+    SELECT *
+    FROM foo f
+    WHERE f.is_active = 1
+  p vs.
+  pre: code.sql.
+    -- Using an actual boolean type
+    SELECT *
+    FROM foo f
+    WHERE f.is_active
+
+section
+  h3 Data Types &mdash; Boolean
+  p Better signal-to-noise ratio for UPDATEs
+  pre: code.sql.
+    -- Using ints 1/0 for true/false
+    UPDATE foo
+    SET
+      is_active =
+        CASE WHEN bar = 'xyz'
+          THEN 1
+          ELSE 0
+        END
+  p vs.
+  pre: code.sql.
+    -- Using an actual boolean type
+    UPDATE foo
+    SET is_active = (bar = 'xyz')
+
+section
+  h3 Data Types &mdash; text
+  ul
+    li
+      | Empty string (i.e. '') are not NULL
+      pre: code.sql.
+        => SELECT '' IS NULL;
+        ?column? 
+        ----------
+        f
+    li No size limits in practice <small>[1]</small>
+    li Many character sets / server encodings / client encodings <small>[2]</small>
+  +foot-note(1)
+    | Limited to 1 GB. If you get close to that size you've got other problems...
+  +foot-note(2)
+    | Though you probably should just use UTF-8
+
+section
+  h3 Data Types &mdash; uuid
+  ul
+    li Added in version 8.3 (released <strong>2008!</strong>)
+    li Stored as <strong>16-bytes</strong> (not as a string<small>[1]</small>)
+    li Generate within app or in-database
+  pre: code.sql.
+    => SELECT pgcrypto.gen_random_uuid();
+              gen_random_uuid            
+    --------------------------------------
+    380a168a-7309-4f43-a3de-d89a86fd2284
+  +foot-note(1)
+    | That's a >50% storage savings which translates to more data fitting in the cache.
+
+section
+  h3 Data Types &mdash; json / jsonb
+  ul
+    li NoSQL on ACID
+    li json added in 9.2 (released 2012)
+    li json becomes useful in 9.3 (released 2013)
+    li jsonb added in 9.4 (released 2014)
+  pre: code.sql.
+    => SELECT t.data->>'foo'
+        FROM (SELECT '{"foo": 123}'::json AS data) t;
+    ?column? 
+    ----------
+    123
+    (1 row)
+
+section
+  h3 Data Types &mdash; json / jsonb
+  p <code>row_to_json(...)</code> and <code>json_agg(...)</code>
+  pre: code.sql
+    include ../sql/parent-child-json-agg.sql
+
+section
+  h3 Data Types &mdash; json / jsonb
+  p <code>row_to_json(...)</code> and <code>json_agg(...)</code>
+  pre: code.no-highlight
+    include ../sql/parent-child-json-agg-output.txt
+  p.small Only <strong>one round-trip</strong> from app to database.
+
+section
+  h3 Data Types &mdash; Domains
+  ul
+    li Subset of an existing type
+    li Adds <strong>CHECK</strong> constraints and defaults
+  pre: code.sql
+    include ../sql/create-domain.sql
+
+section
+  h3 Data Types &mdash; Domains
+  p Define once then reuse in multiple places
+  pre: code.sql
+    include ../sql/create-table-with-domain.sql
+
+section
+  h3 Partial Indexes
+  p Index and constrain only a subset of a table
+  pre: code.sql
+    include ../sql/partial-indexes.sql
+
+section
+  h3 Functional Indexes
+  p Allows for indexing an expression
+  pre: code.sql.
+    CREATE UNIQUE INDEX foo_ix_lower_name
+      ON foo (LOWER(name));
+  pre.code.nohighlight.
+    => EXPLAIN SELECT * FROM foo WHERE LOWER(name) = 'abc';
+                                      QUERY PLAN           
+    -------------------------------------------------------
+    Index Scan using foo_ix_lower_name on foo
+      (cost=0.43..8.45 rows=1 width=18)
+      Index Cond: (lower(name) = 'abc'::text)
+
+section
+  h3 Schema and Data migrations
+  ul
+    li Transactional DDL
+    li COPY
+    li Template databases
+
+section
+  h3 Transactional DDL
+  ul
+    li All or nothing schema migrations<small>[1]</small>
+    li Simultaneous DDL and data migrations
+    li Re-test in dev via ROLLBACK
+  pre: code.sql
+    include ../sql/transactional-ddl.sql
+  +foot-note(1)
+    | Some limitations such as altering enums but most DDL is transactional.
+
+section
+  h3 COPY
+  p The fastest way to export data
+  pre: code.sql
+    include ../sql/copy-out-example.sql
+
+section
+  h3 Template Databases
+  ul
+    li All databases are copies from a template
+    li Default template is <code>"template1"</code>
+    li Great for testing destructive changes
+  p First create a backup:
+  pre: code.sql
+    include ../sql/template-database-create-backup.sql
+
+section
+  h3 Template Databases
+  ul
+    li Run some schema migrations
+    li Run your app
+    li: s Realize that you broke everything
+    li Restore from the template backup
+    li Repeat!
+  pre: code.sql
+    include ../sql/template-database-restore-backup.sql
+
+section
+  h3 Making Hard Things (REALLY) Easy
+
+section
+  h3 Hotel Bookings
+  p How do we prevent two customers from booking the same room?
+
+section
+  h3 Hotel Bookings
+  h4 Using vanilla SQL
+  ul
+    li Use two date columns: start and end
+    li Add <code>CHECK: (start < end)</code>
+    li Add <code>UNIQUE: (room_id, start)</code>
+    li ???
+    li
+      | Serialize via
+      | &nbsp;
+      code.sql SELECT FOR UPDATE
+    li Check for overlaps in app code
+    li Hope that nothing else modifies the data
+
+section
+  h3 Hotel Bookings
+  h4 Using Range Types / Exclusion
+  pre: code.sql
+    include ../sql/range-types-exclusion.sql
+  p Available since v9.2 (released in <strong>2012!</strong>)
+
+section
+  h3 Range Types / Exclusion
+  pre: code.sql
+    include ../sql/range-types-insert.sql
+  pre: code
+    include ../sql/range-types-insert-error.txt
+
+section
+  h3 Making The Impossible Possible
+
+section
+  h3 Combining Datasets
+  h4 Say we have:
+  ul
+    li Primary DB for core data
+    li Billing history in a separate DB
+    li Website analytics in a third DB
+    li User sessions (Redis)
+  p How to get a live view of all of this together?
+
+section
+  h3 Foreign Data Wrappers
+  ul
+    li Query remote tables as if they're local
+    li Turns your database into a data hub
+    li Support for RDBMS and non-RDBMS
+    li Extensions exist for pure APIs too
+
+section
+  h3 postgres_fdw
+  pre: code.sql
+    include ../sql/complex-fdw-postgres.sql
+
+section
+  h3 redis_fdw
+  pre: code.sql
+    include ../sql/complex-fdw-redis.sql
+
+section
+  h3 Join Them All!
+  pre: code.sql
+    include ../sql/complex-fdw-query.sql
+
+section
+  h3 Summary
+  img(src='img/postgresql-logo-540x557.png', width="270", height="278")
+  p Don't crawl on N databases...
+  p when you can run on one!
+  
+section
+  h3 Q&amp;A
+  p Sehrope Sarkuni
+  p sehrope@jackdb.com
+
+section
+  h3 Thank You!
